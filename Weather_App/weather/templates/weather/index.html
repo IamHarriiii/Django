@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="weather-body" {% if image_url %}style="background-image: url('{{ image_url }}');" {% endif %}>
+    <div class="container glass-effect">
+        <header>
+            <h1 class="heading">
+                <i class="fas fa-cloud-sun"></i>
+                Weather Dashboard
+            </h1>
+            {% if messages %}
+            <div class="alert">
+                {% for message in messages %}
+                <p class="alert-message">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </header>
+
+        <form method="POST" class="search-form" id="weatherForm">
+            {% csrf_token %}
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="city" placeholder="Search for a city..." value="{{ city }}"
+                        class="search-input" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+
+        <div class="weather-card">
+            <div class="loading-spinner"></div>
+            <div class="weather-info-main">
+                <div class="temperature">
+                    <h2 class="temp">{{ temp }}°C</h2>
+                    <h3 class="city">{{ city|title }}</h3>
+                    <p class="date">{{ day|date:"l, F j, Y" }}</p>
+                    <p class="local-time">
+                        <i class="far fa-clock"></i>
+                        <span id="localTime">Loading local time...</span>
+                    </p>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-icon">
+                        <img src="https://openweathermap.org/img/w/{{ icon }}.png" alt="{{ description }}"
+                            class="weather-img">
+                    </div>
+                    <p class="description">{{ description|title }}</p>
+                    <div class="additional-info">
+                        <p><i class="fas fa-tint"></i> Humidity: {{ humidity }}%</p>
+                        <p><i class="fas fa-wind"></i> Wind: {{ wind_speed }} m/s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local Time
+        function updateLocalTime() {
+            const time = new Date().toLocaleTimeString();
+            document.getElementById('localTime').textContent = time;
+        }
+
+        // Loading State
+        document.getElementById('weatherForm').addEventListener('submit', function () {
+            this.classList.add('loading');
+        });
+
+        // Initialize
+        setInterval(updateLocalTime, 1000);
+    </script>
+</body>
+
+</html>
