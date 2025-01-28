@@ -1,70 +1,95 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from Todo_App import models
-from Todo_App.models import TODO
+from django.contrib import messages
+from .models import TODO
+from django.http import JsonResponse
 
-@login_required(login_url='/loginn')
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('todos')
+    return redirect('login')
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('todos')
+        
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return redirect('signup')
+            
+        user = User.objects.create_user(username=username, email=email, password=password)
+        login(request, user)
+        messages.success(request, 'Account created successfully!')
+        return redirect('todos')
+        
     return render(request, 'signup.html')
 
-# Signup view
-def signupp(request):
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('todos')
+        
     if request.method == 'POST':
-        fnm = request.POST.get('fnm')
-        emailid = request.POST.get('emailid')
-        pwd = request.POST.get('pwd')
-        my_user = User.objects.create_user(username=fnm, email=emailid, password=pwd)
-        my_user.save()
-        return redirect('/loginn')
-    
-    return render(request, 'signup.html')
-
-def loginn(request):
-    if request.method == 'POST':
-        fnm = request.POST.get('fnm')
-        pwd = request.POST.get('pwd')
-        userr = authenticate(request, username=fnm, password=pwd)
-        if userr is not None:
-            login(request, userr)
-            return redirect('/todopage')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('todos')
         else:
-            return redirect('/loginn')
-
+            messages.error(request, 'Invalid credentials')
+            
     return render(request, 'login.html')
 
-@login_required(login_url='/loginn')
-def todo(request):
+@login_required(login_url='login')
+def todo_list(request):
+    todos = TODO.objects.filter(user=request.user).order_by('-date')
+    return render(request, 'todo_list.html', {'todos': todos})
+
+@login_required(login_url='login')
+def create_todo(request):
     if request.method == 'POST':
         title = request.POST.get('title')
-        obj = models.TODO(title=title, user=request.user)
-        obj.save()
-        return redirect('/todopage')
+        if title:
+            TODO.objects.create(title=title, user=request.user)
+            messages.success(request, 'Task added successfully!')
+        return redirect('todos')
 
-    res = models.TODO.objects.filter(user=request.user).order_by('-date')
-    return render(request, 'todo.html', {'res': res})
+@login_required(login_url='login')
+def delete_todo(request, todo_id):
+    todo = get_object_or_404(TODO, id=todo_id, user=request.user)
+    todo.delete()
+    messages.success(request, 'Task deleted successfully!')
+    return redirect('todos')
 
-# Delete todo
-def delete_todo(request, srno):
-    obj = models.TODO.objects.get(srno=srno)
-    obj.delete()
-    return redirect('/todopage')
-
-# Edit todo
-@login_required(login_url='/loginn')
-def edit_todo(request, srno):
+@login_required(login_url='login')
+def edit_todo(request, todo_id):
+    todo = get_object_or_404(TODO, id=todo_id, user=request.user)
+    
     if request.method == 'POST':
         title = request.POST.get('title')
-        obj = models.TODO.objects.get(srno=srno)
-        obj.title = title
-        obj.save()
-        return redirect('/todopage')
+        if title:
+            todo.title = title
+            todo.save()
+            messages.success(request, 'Task updated successfully!')
+            return redirect('todos')
+            
+    return render(request, 'edit_todo.html', {'todo': todo})
 
-    obj = models.TODO.objects.get(srno=srno)
-    return render(request, 'edit_todo.html', {'obj': obj})
+@login_required(login_url='login')
+def toggle_todo(request, todo_id):
+    todo = get_object_or_404(TODO, id=todo_id, user=request.user)
+    todo.status = not todo.status
+    todo.save()
+    return JsonResponse({'status': todo.status})
 
-# Logout view
-def signout(request):
+def logout_view(request):
     logout(request)
-    return redirect('/loginn')
+    return redirect('login')

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Todo List | Todo App{% endblock %}
+
+{% block content %}
+<div class="todo-container">
+    <div class="todo-header">
+        <h1>Welcome, {{ user.username }}</h1>
+        <a href="{% url 'logout' %}" class="btn btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="todo-content">
+        <form method="post" action="{% url 'create_todo' %}" class="todo-form">
+            {% csrf_token %}
+            <input type="text" name="title" placeholder="What needs to be done?" required>
+            <button type="submit" class="btn btn-add">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
+        </form>
+
+        <div class="todo-list">
+            {% for todo in todos %}
+            <div class="todo-item {% if todo.status %}completed{% endif %}" data-id="{{ todo.id }}">
+                <div class="todo-checkbox">
+                    <input type="checkbox" {% if todo.status %}checked{% endif %}>
+                </div>
+                <div class="todo-title">{{ todo.title }}</div>
+                <div class="todo-actions">
+                    <a href="{% url 'edit_todo' todo.id %}" class="btn btn-edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'delete_todo' todo.id %}" class="btn btn-delete">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="todo-empty">
+                <p>No tasks yet! Add your first task above.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

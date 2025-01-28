@@ -1,66 +1,28 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html>
+{% block title %}Sign Up | Todo App{% endblock %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
-    <link rel="stylesheet" href="{% static 'css/index.css' %}" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" />
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Font Awesome 5 Brands:wght@400&display=swap" />
-</head>
-
-<body>
-    <div class="signup-login">
-        <div class="signup-box">
-            <form method="post">
-                {% csrf_token %}
-                <div class="heading">
-                    SignUp
-                </div>
-
-                <div class="line"></div>
-                <div class="field">
-                    <b>Username</b>
-
-                    <input class="inp" type="text" name="fnm" required placeholder="Enter Your Full Name">
-                </div>
-
-
-                <div class="field">
-                    <b>Email</b>
-
-                    <input class="inp" type="email" name="emailid" required placeholder="Enter Your Username">
-                </div>
-
-
-                <div class="field">
-                    <b>Password</b>
-
-                    <input class="inp" type="password" name="pwd" required placeholder="Enter Password">
-                </div>
-                <div class="field">
-                    <input class="submit-button" type="submit" value="Signup">
-                </div>
-                <div class="line"></div>
-
-                <div class="field">
-                    <b style="margin-left:130px;">Already have an account?</b>
-                    <br>
-                    <a class="anc" href="/loginn">Login</a>
-                </div>
-
-
-
-
-
-            </form>
-
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h1>Sign Up</h1>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+        <div class="auth-link">
+            <p>Already have an account?</p>
+            <a href="{% url 'login' %}">Login</a>
         </div>
-
     </div>
-</body>
-
-</html>
+</div>
+{% endblock %}
