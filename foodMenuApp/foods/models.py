@@ -9,3 +9,4 @@ class Items(models.Model):
     item_name = models.CharField(max_length=50)
     item_desc = models.CharField(max_length=200)
     items_price = models.IntegerField()
+    items_image = models.CharField(max_length=500,default='https://www.thefuzzyduck.co.uk/wp-content/uploads/2024/05/image-coming-soon-placeholder-01-660x660.png')
