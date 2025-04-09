@@ -1,0 +1,10 @@
+<ul>
+{% for item in item_list %}
+    <li>
+        <a href="{% url 'dView' item.id %}">
+            <strong>{{ item.item_name }}</strong> (ID: {{ item.id }})<br>
+        </a>
+        {{ item.item_desc }}
+    </li>
+{% endfor %}
+</ul>
