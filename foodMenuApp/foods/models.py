@@ -1,12 +1,18 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.urls import reverse
 # Create your models here.
-class Items(models.Model):
+class Item(models.Model):
 
     def __str__(self):
-        return f"{self.item_name} - Rs.{self.items_price}"
-    
-    item_name = models.CharField(max_length=50)
+        return self.item_name
+    user_name = models.ForeignKey(User,on_delete=models.CASCADE,default=1)
+    item_name = models.CharField(max_length=200)
     item_desc = models.CharField(max_length=200)
-    items_price = models.IntegerField()
+    item_price = models.IntegerField()
     items_image = models.CharField(max_length=500,default='https://www.thefuzzyduck.co.uk/wp-content/uploads/2024/05/image-coming-soon-placeholder-01-660x660.png')
+    
+    # delete this afterwards
+    def get_absolute_url(self):
+           return reverse("food:detail", kwargs={"pk": self.pk})
+    
