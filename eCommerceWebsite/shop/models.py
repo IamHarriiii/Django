@@ -46,7 +46,7 @@ class Products(models.Model):
     @property
     def discount_percent(self):
         if self.product_price > 0:
-            return round(100 * (self.product_price - self.product_disc_price) / self.product_price, 2)
+            return round(100 * (self.product_price - self.product_DiscPrice) / self.product_price, 2)
         return 0
 
     def __str__(self):

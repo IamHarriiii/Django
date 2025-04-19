@@ -4,4 +4,7 @@ from . models import Products
 
 def index(request):
     product_objs = Products.objects.all()
-    return render(request,'index.html',product_objs)
+    context ={
+       'product_objs' : product_objs, 
+    }
+    return render(request,'index.html',context=context)
