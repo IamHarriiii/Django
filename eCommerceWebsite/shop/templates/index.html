@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -48,11 +47,55 @@
             object-fit: contain;
             padding: 10px;
         }
+
+        /* Simple pagination styling */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .pagination .page-item .page-link {
+            border: none;
+            color: #666;
+            padding: 10px 15px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #212529;
+            color: white;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            background-color: #f1f1f1;
+        }
+
+        .products-count {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .search-results {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-term {
+            font-weight: 600;
+        }
     </style>
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
         <a class="navbar-brand" href="#">MyShop</a>
     </nav>
@@ -65,6 +108,23 @@
                     value="{{ request.GET.search }}">
                 <button class="btn btn-outline-primary" type="submit">Search</button>
             </form>
+        </div>
+
+        <!-- Search results info and products count -->
+        {% if request.GET.search %}
+        <div class="search-results">
+            <p class="mb-0">
+                Showing results for "<span class="search-term">{{ request.GET.search }}</span>"
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="products-count">
+            {% if product_objs.paginator.count > 0 %}
+            Showing {{ product_objs.start_index }} - {{ product_objs.end_index }}
+            of {{ product_objs.paginator.count }} product{% if product_objs.paginator.count != 1 %}s{% endif %}
+            {% if request.GET.search %} matching your search{% endif %}
+            {% endif %}
         </div>
 
         <div class="row g-4">
@@ -87,11 +147,63 @@
                 </div>
             </div>
             {% empty %}
-            <p>No products available.</p>
+            <div class="col-12 text-center py-5">
+                <h4>No products available{% if request.GET.search %} matching "{{ request.GET.search }}"{% endif %}.
+                </h4>
+                {% if request.GET.search %}
+                <a href="/" class="btn btn-outline-primary mt-3">Clear Search</a>
+                {% endif %}
+            </div>
             {% endfor %}
         </div>
-    </div>
 
+        <!-- Simple Pagination -->
+        {% if product_objs.has_other_pages %}
+        <nav aria-label="Product pagination">
+            <ul class="pagination">
+                {% if product_objs.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ product_objs.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                        aria-label="Previous">
+                        &laquo;
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        &laquo;
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <a class="page-link" href="#">{{ product_objs.number }}</a>
+                </li>
+
+                <li class="page-item">
+                    <span class="page-link">{{ product_objs.paginator.num_pages }}</span>
+                </li>
+
+                {% if product_objs.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ product_objs.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                        aria-label="Next">
+                        &raquo;
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">
+                        &raquo;
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
