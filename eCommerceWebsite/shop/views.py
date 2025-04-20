@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from .models import Products
 from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
 
-def index(request):
+def indexView(request):
     # Get search parameter
     itemName = request.GET.get('search')
     
@@ -25,3 +26,13 @@ def index(request):
     }
     
     return render(request, 'index.html', context=context)
+
+
+def detailView(request, item_id):
+   product_obj = get_object_or_404(Products, id=item_id)
+   context = {
+      'product_obj': product_obj,
+   }
+   return render(request, 'detail.html', context=context)
+
+# {% url 'add_to_cart' product_obj.id %}
